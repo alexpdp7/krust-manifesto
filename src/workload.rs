@@ -4,7 +4,8 @@ use k8s_openapi::{
     api::{
         apps::v1::{Deployment, DeploymentSpec},
         core::v1::{
-            Container, ContainerPort, Namespace, PodSpec, PodTemplateSpec, Service, ServiceAccount,
+            ConfigMap, ConfigMapEnvSource, Container, ContainerPort, EnvFromSource, Namespace,
+            PodSpec, PodTemplateSpec, Secret, SecretEnvSource, Service, ServiceAccount,
             ServicePort, ServiceSpec,
         },
         networking::v1::{
@@ -95,6 +96,84 @@ impl SetServiceAccount for Deployment {
             .as_mut()
             .unwrap()
             .service_account_name = account.metadata.name.clone();
+        result
+    }
+}
+
+pub trait SetEnvFromConfigMap {
+    fn set_env_from_config_map(&self, config_map: &ConfigMap) -> Self;
+}
+
+impl SetEnvFromConfigMap for Deployment {
+    fn set_env_from_config_map(&self, config_map: &ConfigMap) -> Self {
+        let mut result = self.clone();
+        let env_from = &result
+            .spec
+            .as_mut()
+            .unwrap()
+            .template
+            .spec
+            .as_mut()
+            .unwrap()
+            .containers[0]
+            .env_from;
+        let mut env_from = env_from.clone().unwrap_or(Vec::new());
+        env_from.push(EnvFromSource {
+            config_map_ref: Some(ConfigMapEnvSource {
+                name: config_map.metadata.name.clone(),
+                optional: Some(false),
+            }),
+            ..Default::default()
+        });
+        result
+            .spec
+            .as_mut()
+            .unwrap()
+            .template
+            .spec
+            .as_mut()
+            .unwrap()
+            .containers[0]
+            .env_from = Some(env_from);
+        result
+    }
+}
+
+pub trait SetEnvFromSecret {
+    fn set_env_from_secret(&self, secret: &Secret) -> Self;
+}
+
+impl SetEnvFromSecret for Deployment {
+    fn set_env_from_secret(&self, secret: &Secret) -> Self {
+        let mut result = self.clone();
+        let env_from = &result
+            .spec
+            .as_mut()
+            .unwrap()
+            .template
+            .spec
+            .as_mut()
+            .unwrap()
+            .containers[0]
+            .env_from;
+        let mut env_from = env_from.clone().unwrap_or(Vec::new());
+        env_from.push(EnvFromSource {
+            secret_ref: Some(SecretEnvSource {
+                name: secret.metadata.name.clone(),
+                optional: Some(false),
+            }),
+            ..Default::default()
+        });
+        result
+            .spec
+            .as_mut()
+            .unwrap()
+            .template
+            .spec
+            .as_mut()
+            .unwrap()
+            .containers[0]
+            .env_from = Some(env_from);
         result
     }
 }
