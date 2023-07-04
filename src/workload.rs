@@ -41,6 +41,7 @@ pub fn deployment(
                     containers: vec![Container {
                         name: name.into(),
                         image: Some(image.into()),
+                        image_pull_policy: Some("Always".into()),
                         ports: Some(ports.clone()),
                         ..Default::default()
                     }],
