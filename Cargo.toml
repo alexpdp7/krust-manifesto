@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-#kube-core = { version = "0.82.2", default_features = false }
 k8s-openapi = { version = "0.18.0", features = ["v1_26"], default_features = false }
-serde_yaml = "0.9.21"
-serde = "1.0.163"
+serde_yaml = "0.9.25"
+serde = "1.0.188"
