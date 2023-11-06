@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 k8s-openapi = { version = "0.20.0", features = ["earliest"], default_features = false }
-serde_yaml = "0.9.25"
+serde_yaml = "0.9.27"
 serde = "1.0.193"
